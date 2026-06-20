@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Australian Retirement Calculator - Excel Export</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #e6edf2;
+            display: flex;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 24px 48px rgba(0, 20, 30, 0.15);
+            padding: 32px 30px 40px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #002b3b;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 3px solid #f0a500;
+            padding-bottom: 16px;
+            margin-bottom: 28px;
+        }
+        .badge {
+            background: #002b3b;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 18px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+        }
+        .subhead {
+            font-size: 15px;
+            font-weight: 400;
+            color: #2d5f7a;
+            margin-left: 4px;
+        }
+        .section {
+            background: #f7fafd;
+            border-radius: 24px;
+            padding: 20px 22px;
+            margin-bottom: 24px;
+            border: 1px solid #dae6ef;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00364a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 28px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px 24px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 4px;
+        }
+        .input-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e4357;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .input-group label small {
+            font-weight: 400;
+            color: #4f7a94;
+        }
+        .input-group input,
+        .input-group select {
+            padding: 10px 14px;
+            border: 1px solid #c2d6e2;
+            border-radius: 14px;
+            font-size: 15px;
+            background: white;
+            transition: 0.15s;
+            width: 100%;
+            font-weight: 500;
+            color: #002b3b;
+        }
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #f0a500;
+            outline: 2px solid #f0a50030;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+        .input-group .hint {
+            font-size: 11px;
+            color: #6a8fa8;
+            margin-top: 2px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 28px;
+            background: #eaf1f7;
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin-top: 6px;
+        }
+        .strategy-grid .input-group {
+            margin-bottom: 0;
+        }
+        .strategy-grid .input-group select {
+            background: white;
+        }
+        .age-band-label {
+            font-weight: 600;
+            color: #00364a;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin: 18px 0 22px;
+        }
+        .btn {
+            background: white;
+            border: 1px solid #b8cedc;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #00364a;
+            cursor: pointer;
+            transition: 0.15s;
+            flex: 1 1 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #002b3b;
+            border: 1px solid #002b3b;
+            color: white;
+            box-shadow: 0 6px 14px rgba(0, 43, 59, 0.25);
+        }
+        .btn-primary:hover {
+            background: #00425a;
+            transform: scale(1.01);
+        }
+        .btn-secondary {
+            background: #ecf3f8;
+            border: 1px solid #b8cedc;
+        }
+        .btn-secondary:hover {
+            background: #dce8f0;
+        }
+        .btn-success {
+            background: #0d7c5a;
+            border: 1px solid #0d7c5a;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #0f9a70;
+            transform: scale(1.01);
+        }
+        .result-panel {
+            background: #f1f7fc;
+            border-radius: 28px;
+            padding: 24px 26px;
+            border: 1px solid #cfe0ec;
+            margin-top: 18px;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+        }
+        .result-item {
+            background: white;
+            border-radius: 20px;
+            padding: 14px 10px;
+            text-align: center;
+            border: 1px solid #dce9f2;
+        }
+        .result-item .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3f6d88;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .result-item .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #002b3b;
+            margin-top: 4px;
+            word-break: break-word;
+        }
+        .result-item .value.positive {
+            color: #0d7c5a;
+        }
+        .result-item .value.danger {
+            color: #b13e3e;
+        }
+        .footnote {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #1f4d66;
+            background: #e2eef7;
+            padding: 14px 20px;
+            border-radius: 40px;
+            border-left: 4px solid #f0a500;
+            line-height: 1.5;
+        }
+        .footnote strong {
+            color: #002b3b;
+        }
+        .drawdown-table {
+            margin-top: 12px;
+            background: #eaf1f7;
+            border-radius: 16px;
+            padding: 12px 18px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 4px 16px;
+            font-size: 14px;
+        }
+        .drawdown-table .dd-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+        }
+        .drawdown-table .dd-item .age-range {
+            font-weight: 500;
+            color: #00364a;
+        }
+        .drawdown-table .dd-item .rate {
+            font-weight: 600;
+            color: #002b3b;
+        }
+        .ledger-section {
+            margin-top: 20px;
+            border-top: 2px solid #dae6ef;
+            padding-top: 16px;
+        }
+        .ledger-section h3 {
+            color: #00364a;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .ledger-table-wrap {
+            max-height: 280px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #dae6ef;
+            margin-bottom: 16px;
+        }
+        .ledger-table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .ledger-table-wrap th {
+            background: #002b3b;
+            color: white;
+            padding: 6px 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .ledger-table-wrap td {
+            padding: 4px 8px;
+            border-bottom: 1px solid #e6edf2;
+            white-space: nowrap;
+        }
+        .ledger-table-wrap tr:hover {
+            background: #f0f6fa;
+        }
+        .ledger-table-wrap .exhausted {
+            background: #ffe8e8;
+        }
+        .ledger-table-wrap .positive {
+            color: #0d7c5a;
+        }
+        .ledger-table-wrap .negative {
+            color: #b13e3e;
+        }
+        .order-note {
+            font-size: 12px;
+            color: #4f7a94;
+            background: #eaf1f7;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .transfer-tag {
+            background: #f0a500;
+            color: #002b3b;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 4px;
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 20px 14px;
+            }
+            .grid-2,
+            .grid-3,
+            .strategy-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .result-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .action-row {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+            .ledger-table-wrap {
+                font-size: 9px;
+            }
+            .ledger-table-wrap th,
+            .ledger-table-wrap td {
+                padding: 3px 4px;
+            }
+            .drawdown-table {
+                grid-template-columns: 1fr 1fr;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            🇦🇺 Retirement Planner <span class="badge">Excel Export</span>
+            <span class="subhead">7 Tabs · Full Audit Trail</span>
+        </h1>
+
+        <!-- ====== PERSONAL DETAILS ====== -->
+        <div class="section">
+            <div class="section-title">👤 You & Partner</div>
+            <div class="grid-2">
+                <div class="input-group"><label>Your age</label><input type="number" id="age1" value="58" min="18" max="95"></div>
+                <div class="input-group"><label>Partner age</label><input type="number" id="age2" value="56" min="18" max="95"></div>
+                <div class="input-group"><label>Your super balance ($)</label><input type="number" id="super1" value="800000" step="5000"></div>
+                <div class="input-group"><label>Partner super balance ($)</label><input type="number" id="super2" value="600000" step="5000"></div>
+                <div class="input-group"><label>Your annual salary ($)</label><input type="number" id="salary1" value="50000" step="1000"></div>
+                <div class="input-group"><label>Partner annual salary ($)</label><input type="number" id="salary2" value="30000" step="1000"></div>
+                <div class="input-group"><label>SG rate (%)</label><input type="number" id="sgRate" value="12" step="0.25"></div>
+                <div class="input-group"><label>Total salary sacrifice ($/year)</label><input type="number" id="sacrifice" value="30000" step="500"></div>
+                <div class="input-group"><label>Tax rate on take-home pay (%)</label><input type="number" id="taxRate" value="20" step="1" min="0" max="50"></div>
+                <div class="input-group"><label>Salary stop year (0 = ongoing)</label><input type="number" id="salaryStopYear" value="0" step="1" min="0"></div>
+                <div class="input-group"><label>Rental income stop year (0 = ongoing)</label><input type="number" id="rentalStopYear" value="0" step="1" min="0"></div>
+            </div>
+            <div style="margin-top:8px; font-size:12px; color:#4f7a94; background:#eaf1f7; padding:6px 14px; border-radius:12px;">
+                💡 Salary sacrifice reduces take-home pay. SG is calculated on the original salary. Take-home pay = (Salary - Sacrifice) × (1 - Tax Rate%)
+            </div>
+        </div>
+
+        <!-- ====== INVESTMENT STRATEGY (AGE BANDS) ====== -->
+        <div class="section">
+            <div class="section-title">📈 Super Strategy by Age Band</div>
+            <div class="strategy-grid">
+                <div class="input-group">
+                    <label><span class="age-band-label">60–74</span> <small>return</small></label>
+                    <select id="strat_60_74">
+                        <option value="growth" selected>Growth (7.7%)</option>
+                        <option value="balanced">Balanced (5.3%)</option>
+                        <option value="conservative">Conservative (3.8%)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><span class="age-band-label">75–79</span> <small>return</small></label>
+                    <select id="strat_75_79">
+                        <option value="growth">Growth (7.7%)</option>
+                        <option value="balanced" selected>Balanced (5.3%)</option>
+                        <option value="conservative">Conservative (3.8%)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><span class="age-band-label">80–84</span> <small>return</small></label>
+                    <select id="strat_80_84">
+                        <option value="growth">Growth (7.7%)</option>
+                        <option value="balanced">Balanced (5.3%)</option>
+                        <option value="conservative" selected>Conservative (3.8%)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><span class="age-band-label">85+</span> <small>return</small></label>
+                    <select id="strat_85_plus">
+                        <option value="growth">Growth (7.7%)</option>
+                        <option value="balanced">Balanced (5.3%)</option>
+                        <option value="conservative" selected>Conservative (3.8%)</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:10px; font-size:14px; color:#2d5f7a; background:#eaf1f7; padding:6px 14px; border-radius:30px; display:inline-block;">
+                ⚙️ Custom return for other investments: <input type="number" id="customReturn" value="4.5" step="0.1" style="width:80px; padding:4px 8px; border-radius:20px; border:1px solid #c2d6e2; margin-left:6px;"> %
+            </div>
+            <div style="margin-top:8px; font-size:13px; color:#1e4357; background:#dce8f0; padding:4px 14px; border-radius:20px; display:inline-block;">
+                📌 Accumulation earnings taxed at 15% · Pension earnings tax-free · Growth for ages under 60 = 7.7%
+            </div>
+        </div>
+
+        <!-- ====== FEES, INFLATION, EXPENSES, OTHER INCOME ====== -->
+        <div class="section">
+            <div class="section-title">💰 Fees, Expenses & Other Income</div>
+            <div class="grid-2">
+                <div class="input-group"><label>Super admin fee (% of balance/year)</label><input type="number" id="feePct" value="0.60" step="0.05"></div>
+                <div class="input-group"><label>Inflation (% p.a.)</label><input type="number" id="inflation" value="2.8" step="0.1"></div>
+                <div class="input-group full-width"><label>Annual living expenses (today's $)</label><input type="number" id="annualExpenses" value="62000" step="1000"></div>
+                <div class="input-group"><label>Opening cash balance ($)</label><input type="number" id="openingCash" value="25000" step="1000"></div>
+                <div class="input-group"><label>Rental income (annual, $)</label><input type="number" id="rentalIncome" value="0" step="1000"></div>
+                <div class="input-group"><label>Rental expenses (annual, $)</label><input type="number" id="rentalExpenses" value="0" step="500"></div>
+                <div class="input-group"><label>Other investment income ($/year)</label><input type="number" id="otherIncome" value="0" step="1000"></div>
+                <div class="input-group"><label>Other investment expenses ($/year)</label><input type="number" id="otherExpenses" value="0" step="500"></div>
+            </div>
+        </div>
+
+        <!-- ====== RETIREMENT AGE & PROJECTION ====== -->
+        <div class="section">
+            <div class="section-title">⏳ Retirement Settings</div>
+            <div class="grid-2">
+                <div class="input-group"><label>Desired retirement age</label><input type="number" id="retireAge" value="60" min="45" max="95"></div>
+                <div class="input-group"><label>Max projection years</label><input type="number" id="projectionYears" value="40" min="5" max="60"></div>
+            </div>
+            <div style="margin-top:8px; background:#eaf1f7; border-radius:12px; padding:8px 14px; display:flex; flex-wrap:wrap; gap:6px 20px; font-size:13px; align-items:center;">
+                <span style="font-weight:600; color:#00364a;">🔄 Transfer to Pension:</span>
+                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="checkbox" id="transferToPension" checked>
+                    Transfer super to Pension when salary stops and age ≥ 60
+                </label>
+            </div>
+            <div class="drawdown-table">
+                <div class="dd-item"><span class="age-range">&lt; 60</span><span class="rate">0%</span></div>
+                <div class="dd-item"><span class="age-range">60–64</span><span class="rate">4%</span></div>
+                <div class="dd-item"><span class="age-range">65–74</span><span class="rate">5%</span></div>
+                <div class="dd-item"><span class="age-range">75–79</span><span class="rate">6%</span></div>
+                <div class="dd-item"><span class="age-range">80–84</span><span class="rate">7%</span></div>
+                <div class="dd-item"><span class="age-range">85–89</span><span class="rate">9%</span></div>
+                <div class="dd-item"><span class="age-range">90–94</span><span class="rate">11%</span></div>
+                <div class="dd-item"><span class="age-range">95+</span><span class="rate">14%</span></div>
+            </div>
+        </div>
+
+        <!-- ====== BUTTONS ====== -->
+        <div class="action-row">
+            <button class="btn btn-primary" id="calcBtn">🧮 Run Projection</button>
+            <button class="btn btn-secondary" id="resetBtn">↺ Reset Defaults</button>
+            <button class="btn btn-success" id="excelBtn">📊 Download Excel Workbook</button>
+        </div>
+
+        <!-- ====== RESULTS ====== -->
+        <div class="result-panel" id="resultPanel">
+            <div class="result-grid" id="resultGrid">
+                <div class="result-item"><div class="label">Total Super (Accum + Pension)</div><div class="value" id="finalSuper">—</div></div>
+                <div class="result-item"><div class="label">Total other assets</div><div class="value" id="finalOther">—</div></div>
+                <div class="result-item"><div class="label">Annual retirement income (year 1)</div><div class="value" id="retIncome">—</div></div>
+                <div class="result-item"><div class="label">Annual expenses (year 1)</div><div class="value" id="retExpenses">—</div></div>
+                <div class="result-item"><div class="label">Surplus / shortfall</div><div class="value" id="surplus">—</div></div>
+                <div class="result-item"><div class="label">Funds last (years)</div><div class="value" id="yearsLast">—</div></div>
+            </div>
+            <div class="footnote" id="footnoteMsg">
+                <strong>🔍 Projection:</strong> Age-based drawdown & strategy applied each year. Super fees deducted annually.
+            </div>
+
+            <!-- ====== LEDGER 1: PARTNER 1 ====== -->
+            <div class="ledger-section" id="ledger1Section" style="display:none;">
+                <h3>📋 Ledger 1: Partner 1</h3>
+                <div class="order-note">Order: OB → Salary+SG → Growth (15% tax in Acc) → Fees → Transfer → Drawdown → CB</div>
+                <div class="ledger-table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>Year</th><th>Age</th><th>OB Acc</th><th>OB Pens</th><th>Salary+SG</th><th>Take-Home Pay</th><th>Growth</th><th>Tax</th><th>Fees</th>
+                            <th>Transfer</th><th>Drawdown</th><th>CB Acc</th><th>CB Pens</th>
+                        </tr></thead>
+                        <tbody id="ledger1Body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ====== LEDGER 2: PARTNER 2 ====== -->
+            <div class="ledger-section" id="ledger2Section" style="display:none;">
+                <h3>📋 Ledger 2: Partner 2</h3>
+                <div class="order-note">Order: OB → Salary+SG → Growth (15% tax in Acc) → Fees → Transfer → Drawdown → CB</div>
+                <div class="ledger-table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>Year</th><th>Age</th><th>OB Acc</th><th>OB Pens</th><th>Salary+SG</th><th>Take-Home Pay</th><th>Growth</th><th>Tax</th><th>Fees</th>
+                            <th>Transfer</th><th>Drawdown</th><th>CB Acc</th><th>CB Pens</th>
+                        </tr></thead>
+                        <tbody id="ledger2Body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ====== LEDGER 3: COMBINED ====== -->
+            <div class="ledger-section" id="ledger3Section" style="display:none;">
+                <h3>📋 Ledger 3: Combined Cashflow</h3>
+                <div class="order-note">Order: OB Cash → Combined Take-Home Pay + Drawdown + Other Income → Expenses → Surplus → CB Cash</div>
+                <div class="ledger-table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>Year</th><th>OB Cash</th><th>Take-Home Pay</th><th>Combined Drawdown</th><th>Other Income</th>
+                            <th>Total Income</th><th>Expenses</th><th>Surplus</th><th>CB Cash</th>
+                            <th>Combined Acc OB</th><th>Combined Pens OB</th>
+                            <th>Combined Growth</th><th>Combined Tax</th><th>Combined Fees</th>
+                            <th>Combined Transfer</th><th>Combined Drawdown</th><th>Combined Acc CB</th><th>Combined Pens CB</th>
+                        </tr></thead>
+                        <tbody id="ledger3Body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // DOM refs
+            const age1 = document.getElementById('age1');
+            const age2 = document.getElementById('age2');
+            const super1 = document.getElementById('super1');
+            const super2 = document.getElementById('super2');
+            const salary1 = document.getElementById('salary1');
+            const salary2 = document.getElementById('salary2');
+            const sgRate = document.getElementById('sgRate');
+            const sacrifice = document.getElementById('sacrifice');
+            const taxRate = document.getElementById('taxRate');
+            const strat_60_74 = document.getElementById('strat_60_74');
+            const strat_75_79 = document.getElementById('strat_75_79');
+            const strat_80_84 = document.getElementById('strat_80_84');
+            const strat_85_plus = document.getElementById('strat_85_plus');
+            const customReturn = document.getElementById('customReturn');
+            const feePct = document.getElementById('feePct');
+            const inflation = document.getElementById('inflation');
+            const annualExpenses = document.getElementById('annualExpenses');
+            const openingCash = document.getElementById('openingCash');
+            const rentalIncome = document.getElementById('rentalIncome');
+            const rentalExpenses = document.getElementById('rentalExpenses');
+            const otherIncome = document.getElementById('otherIncome');
+            const otherExpenses = document.getElementById('otherExpenses');
+            const retireAge = document.getElementById('retireAge');
+            const projectionYears = document.getElementById('projectionYears');
+            const salaryStopYear = document.getElementById('salaryStopYear');
+            const rentalStopYear = document.getElementById('rentalStopYear');
+            const transferToPension = document.getElementById('transferToPension');
+
+            const finalSuper = document.getElementById('finalSuper');
+            const finalOther = document.getElementById('finalOther');
+            const retIncome = document.getElementById('retIncome');
+            const retExpenses = document.getElementById('retExpenses');
+            const surplus = document.getElementById('surplus');
+            const yearsLast = document.getElementById('yearsLast');
+            const footnote = document.getElementById('footnoteMsg');
+
+            const ledger1Body = document.getElementById('ledger1Body');
+            const ledger2Body = document.getElementById('ledger2Body');
+            const ledger3Body = document.getElementById('ledger3Body');
+            const ledger1Section = document.getElementById('ledger1Section');
+            const ledger2Section = document.getElementById('ledger2Section');
+            const ledger3Section = document.getElementById('ledger3Section');
+
+            let ledger1Data = [];
+            let ledger2Data = [];
+            let ledger3Data = [];
+
+            const DEFAULTS = {
+                age1: 58,
+                age2: 56,
+                super1: 800000,
+                super2: 600000,
+                salary1: 50000,
+                salary2: 30000,
+                sgRate: 12,
+                sacrifice: 30000,
+                taxRate: 20,
+                strat_60_74: 'growth',
+                strat_75_79: 'balanced',
+                strat_80_84: 'conservative',
+                strat_85_plus: 'conservative',
+                customReturn: 4.5,
+                feePct: 0.60,
+                inflation: 2.8,
+                annualExpenses: 62000,
+                openingCash: 25000,
+                rentalIncome: 0,
+                rentalExpenses: 0,
+                otherIncome: 0,
+                otherExpenses: 0,
+                retireAge: 60,
+                projectionYears: 40,
+                salaryStopYear: 0,
+                rentalStopYear: 0,
+                transferToPension: true
+            };
+
+            function getDrawdownRate(age) {
+                if (age < 60) return 0;
+                if (age >= 60 && age <= 64) return 4;
+                if (age >= 65 && age <= 74) return 5;
+                if (age >= 75 && age <= 79) return 6;
+                if (age >= 80 && age <= 84) return 7;
+                if (age >= 85 && age <= 89) return 9;
+                if (age >= 90 && age <= 94) return 11;
+                if (age >= 95) return 14;
+                return 4;
+            }
+
+            function getStrategyReturnForAge(age) {
+                if (age < 60) return 7.7;
+                let select;
+                if (age >= 60 && age <= 74) select = strat_60_74;
+                else if (age >= 75 && age <= 79) select = strat_75_79;
+                else if (age >= 80 && age <= 84) select = strat_80_84;
+                else if (age >= 85) select = strat_85_plus;
+                else return 7.7;
+                const val = select.value;
+                if (val === 'growth') return 7.7;
+                if (val === 'balanced') return 5.3;
+                if (val === 'conservative') return 3.8;
+                return 7.7;
+            }
+
+            function fmt(v) {
+                if (v === undefined || v === null || isNaN(v)) return '$0';
+                return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })
+                    .format(v);
+            }
+
+            function rawNumber(v) {
+                if (v === undefined || v === null || isNaN(v)) return '0';
+                return Math.round(v).toString();
+            }
+
+            function renderLedgers() {
+                if (ledger1Data.length > 0) {
+                    ledger1Section.style.display = 'block';
+                    let html = '';
+                    ledger1Data.forEach(row => {
+                        const isTransfer = row.transfer > 0 ? `<span class="transfer-tag">↗</span>` : '';
+                        html += `<tr>
+                            <td>${row.year}</td>
+                            <td>${row.age}</td>
+                            <td>${fmt(row.obAcc)}</td>
+                            <td>${fmt(row.obPens)}</td>
+                            <td>${fmt(row.salarySG)}</td>
+                            <td>${fmt(row.takeHome)}</td>
+                            <td>${fmt(row.growth)}</td>
+                            <td>${fmt(row.tax)}</td>
+                            <td>${fmt(row.fees)}</td>
+                            <td>${fmt(row.transfer)}${isTransfer}</td>
+                            <td>${fmt(row.drawdown)}</td>
+                            <td>${fmt(row.cbAcc)}</td>
+                            <td>${fmt(row.cbPens)}</td>
+                        </tr>`;
+                    });
+                    ledger1Body.innerHTML = html;
+                } else {
+                    ledger1Section.style.display = 'none';
+                }
+
+                if (ledger2Data.length > 0) {
+                    ledger2Section.style.display = 'block';
+                    let html = '';
+                    ledger2Data.forEach(row => {
+                        const isTransfer = row.transfer > 0 ? `<span class="transfer-tag">↗</span>` : '';
+                        html += `<tr>
+                            <td>${row.year}</td>
+                            <td>${row.age}</td>
+                            <td>${fmt(row.obAcc)}</td>
+                            <td>${fmt(row.obPens)}</td>
+                            <td>${fmt(row.salarySG)}</td>
+                            <td>${fmt(row.takeHome)}</td>
+                            <td>${fmt(row.growth)}</td>
+                            <td>${fmt(row.tax)}</td>
+                            <td>${fmt(row.fees)}</td>
+                            <td>${fmt(row.transfer)}${isTransfer}</td>
+                            <td>${fmt(row.drawdown)}</td>
+                            <td>${fmt(row.cbAcc)}</td>
+                            <td>${fmt(row.cbPens)}</td>
+                        </tr>`;
+                    });
+                    ledger2Body.innerHTML = html;
+                } else {
+                    ledger2Section.style.display = 'none';
+                }
+
+                if (ledger3Data.length > 0) {
+                    ledger3Section.style.display = 'block';
+                    let html = '';
+                    ledger3Data.forEach(row => {
+                        const surplusClass = row.surplus >= 0 ? 'positive' : 'negative';
+                        html += `<tr>
+                            <td>${row.year}</td>
+                            <td>${fmt(row.obCash)}</td>
+                            <td>${fmt(row.takeHomePay)}</td>
+                            <td>${fmt(row.combinedDrawdown)}</td>
+                            <td>${fmt(row.otherIncome)}</td>
+                            <td>${fmt(row.totalIncome)}</td>
+                            <td>${fmt(row.expenses)}</td>
+                            <td class="${surplusClass}">${fmt(row.surplus)}</td>
+                            <td>${fmt(row.cbCash)}</td>
+                            <td>${fmt(row.combinedAccOB)}</td>
+                            <td>${fmt(row.combinedPensOB)}</td>
+                            <td>${fmt(row.combinedGrowth)}</td>
+                            <td>${fmt(row.combinedTax)}</td>
+                            <td>${fmt(row.combinedFees)}</td>
+                            <td>${fmt(row.combinedTransfer)}</td>
+                            <td>${fmt(row.combinedDrawdown)}</td>
+                            <td>${fmt(row.combinedAccCB)}</td>
+                            <td>${fmt(row.combinedPensCB)}</td>
+                        </tr>`;
+                    });
+                    ledger3Body.innerHTML = html;
+                } else {
+                    ledger3Section.style.display = 'none';
+                }
+            }
+
+            function runProjection() {
+                let a1 = parseInt(age1.value) || 58;
+                let a2 = parseInt(age2.value) || 56;
+                let s1 = parseFloat(super1.value) || 0;
+                let s2 = parseFloat(super2.value) || 0;
+                let sal1 = parseFloat(salary1.value) || 0;
+                let sal2 = parseFloat(salary2.value) || 0;
+                let sg = parseFloat(sgRate.value) || 0;
+                let sac = parseFloat(sacrifice.value) || 0;
+                let taxPct = parseFloat(taxRate.value) || 0;
+                let fee = parseFloat(feePct.value) || 0;
+                let inf = parseFloat(inflation.value) || 0;
+                let exp = parseFloat(annualExpenses.value) || 0;
+                let cash = parseFloat(openingCash.value) || 0;
+                let rentInc = parseFloat(rentalIncome.value) || 0;
+                let rentExp = parseFloat(rentalExpenses.value) || 0;
+                let othInc = parseFloat(otherIncome.value) || 0;
+                let othExp = parseFloat(otherExpenses.value) || 0;
+                let retAge = parseInt(retireAge.value) || 60;
+                let projYrs = parseInt(projectionYears.value) || 40;
+                let salStop = parseInt(salaryStopYear.value) || 0;
+                let rentStop = parseInt(rentalStopYear.value) || 0;
+                let transferEnabled = transferToPension.checked;
+
+                if (a1 < 18) a1 = 18;
+                if (a2 < 18) a2 = 18;
+                if (a1 > 95) a1 = 95;
+                if (a2 > 95) a2 = 95;
+                if (retAge < Math.max(a1, a2)) retAge = Math.max(a1, a2);
+                if (retAge > 95) retAge = 95;
+                if (projYrs < 3) projYrs = 3;
+                if (projYrs > 60) projYrs = 60;
+                if (sg < 0) sg = 0;
+                if (fee < 0) fee = 0;
+                if (inf < 0) inf = 0;
+                if (taxPct < 0) taxPct = 0;
+
+                let p1Acc = s1;
+                let p1Pens = 0;
+                let p2Acc = s2;
+                let p2Pens = 0;
+                let p1Age = a1;
+                let p2Age = a2;
+                let cashBalance = cash;
+                let firstYearIncome = 0;
+                let firstYearExpense = 0;
+                let yearsLastCount = 0;
+                let assetsExhausted = false;
+
+                ledger1Data = [];
+                ledger2Data = [];
+                ledger3Data = [];
+
+                let currentYear = 2026;
+
+                for (let year = 0; year < projYrs; year++) {
+                    const yearNum = currentYear + year;
+                    const inflFactor = Math.pow(1 + inf / 100, year);
+                    const expThisYear = exp * inflFactor;
+
+                    let rentIncThis = rentInc * inflFactor;
+                    let rentExpThis = rentExp * inflFactor;
+                    if (rentStop > 0 && yearNum >= rentStop) {
+                        rentIncThis = 0;
+                        rentExpThis = 0;
+                    }
+                    const netOtherIncome = (rentIncThis - rentExpThis) + (othInc * inflFactor - othExp * inflFactor);
+
+                    let salarySG1 = 0;
+                    let salarySG2 = 0;
+                    let takeHome1 = 0;
+                    let takeHome2 = 0;
+                    let salaryActive1 = true;
+                    let salaryActive2 = true;
+
+                    if (salStop > 0 && yearNum >= salStop) {
+                        salaryActive1 = false;
+                        salaryActive2 = false;
+                    }
+
+                    let activeSalaries = 0;
+                    if (salaryActive1 && sal1 > 0) activeSalaries++;
+                    if (salaryActive2 && sal2 > 0) activeSalaries++;
+
+                    let sacAllocation1 = 0;
+                    let sacAllocation2 = 0;
+                    let effectiveSal1 = 0;
+                    let effectiveSal2 = 0;
+
+                    if (activeSalaries === 2) {
+                        sacAllocation1 = sac / 2;
+                        sacAllocation2 = sac / 2;
+                        sacAllocation1 = Math.min(sacAllocation1, sal1);
+                        sacAllocation2 = Math.min(sacAllocation2, sal2);
+                        effectiveSal1 = sal1 - sacAllocation1;
+                        effectiveSal2 = sal2 - sacAllocation2;
+                    } else if (activeSalaries === 1) {
+                        if (salaryActive1 && sal1 > 0) {
+                            sacAllocation1 = Math.min(sac, sal1);
+                            effectiveSal1 = sal1 - sacAllocation1;
+                        } else if (salaryActive2 && sal2 > 0) {
+                            sacAllocation2 = Math.min(sac, sal2);
+                            effectiveSal2 = sal2 - sacAllocation2;
+                        }
+                    } else {
+                        effectiveSal1 = 0;
+                        effectiveSal2 = 0;
+                    }
+
+                    if (salaryActive1 && sal1 > 0) {
+                        const sgContrib1 = sal1 * (sg / 100);
+                        salarySG1 = sgContrib1 + sacAllocation1;
+                        takeHome1 = effectiveSal1 * (1 - taxPct / 100);
+                    }
+
+                    if (salaryActive2 && sal2 > 0) {
+                        const sgContrib2 = sal2 * (sg / 100);
+                        salarySG2 = sgContrib2 + sacAllocation2;
+                        takeHome2 = effectiveSal2 * (1 - taxPct / 100);
+                    }
+
+                    const superReturn1 = getStrategyReturnForAge(p1Age) / 100;
+                    const superReturn2 = getStrategyReturnForAge(p2Age) / 100;
+                    const drawPct1 = getDrawdownRate(p1Age) / 100;
+                    const drawPct2 = getDrawdownRate(p2Age) / 100;
+
+                    const p1AccOB = p1Acc;
+                    const p1PensOB = p1Pens;
+                    let growth1Acc = p1AccOB * superReturn1;
+                    let tax1Acc = growth1Acc * 0.15;
+                    let growth1Pens = p1PensOB * superReturn1;
+                    let fees1Acc = p1AccOB * (fee / 100);
+                    let fees1Pens = p1PensOB * (fee / 100);
+                    p1Acc = p1AccOB + growth1Acc - tax1Acc - fees1Acc + salarySG1;
+                    p1Pens = p1PensOB + growth1Pens - fees1Pens;
+                    let transfer1 = 0;
+                    if (transferEnabled && !salaryActive1 && p1Age >= 60 && p1Acc > 0) {
+                        transfer1 = p1Acc;
+                        p1Pens = p1Pens + transfer1;
+                        p1Acc = 0;
+                    }
+                    let drawdown1 = p1Pens * drawPct1;
+                    p1Pens = p1Pens - drawdown1;
+
+                    const p2AccOB = p2Acc;
+                    const p2PensOB = p2Pens;
+                    let growth2Acc = p2AccOB * superReturn2;
+                    let tax2Acc = growth2Acc * 0.15;
+                    let growth2Pens = p2PensOB * superReturn2;
+                    let fees2Acc = p2AccOB * (fee / 100);
+                    let fees2Pens = p2PensOB * (fee / 100);
+                    p2Acc = p2AccOB + growth2Acc - tax2Acc - fees2Acc + salarySG2;
+                    p2Pens = p2PensOB + growth2Pens - fees2Pens;
+                    let transfer2 = 0;
+                    if (transferEnabled && !salaryActive2 && p2Age >= 60 && p2Acc > 0) {
+                        transfer2 = p2Acc;
+                        p2Pens = p2Pens + transfer2;
+                        p2Acc = 0;
+                    }
+                    let drawdown2 = p2Pens * drawPct2;
+                    p2Pens = p2Pens - drawdown2;
+
+                    const combinedDrawdown = drawdown1 + drawdown2;
+                    const combinedTakeHome = takeHome1 + takeHome2;
+                    const combinedAccOB = p1AccOB + p2AccOB;
+                    const combinedPensOB = p1PensOB + p2PensOB;
+                    const combinedGrowth = growth1Acc + growth1Pens + growth2Acc + growth2Pens;
+                    const combinedTax = tax1Acc + tax2Acc;
+                    const combinedFees = fees1Acc + fees1Pens + fees2Acc + fees2Pens;
+                    const combinedTransfer = transfer1 + transfer2;
+                    const combinedAccCB = p1Acc + p2Acc;
+                    const combinedPensCB = p1Pens + p2Pens;
+
+                    const totalIncome = combinedTakeHome + combinedDrawdown + netOtherIncome;
+                    const surplusThis = totalIncome - expThisYear;
+                    cashBalance = cashBalance + surplusThis;
+
+                    if (year === 0) {
+                        firstYearIncome = totalIncome;
+                        firstYearExpense = expThisYear;
+                    }
+
+                    ledger1Data.push({
+                        year: yearNum,
+                        age: p1Age,
+                        obAcc: p1AccOB,
+                        obPens: p1PensOB,
+                        salarySG: salarySG1,
+                        takeHome: takeHome1,
+                        growth: growth1Acc + growth1Pens,
+                        tax: tax1Acc,
+                        fees: fees1Acc + fees1Pens,
+                        transfer: transfer1,
+                        drawdown: drawdown1,
+                        cbAcc: p1Acc,
+                        cbPens: p1Pens
+                    });
+
+                    ledger2Data.push({
+                        year: yearNum,
+                        age: p2Age,
+                        obAcc: p2AccOB,
+                        obPens: p2PensOB,
+                        salarySG: salarySG2,
+                        takeHome: takeHome2,
+                        growth: growth2Acc + growth2Pens,
+                        tax: tax2Acc,
+                        fees: fees2Acc + fees2Pens,
+                        transfer: transfer2,
+                        drawdown: drawdown2,
+                        cbAcc: p2Acc,
+                        cbPens: p2Pens
+                    });
+
+                    ledger3Data.push({
+                        year: yearNum,
+                        obCash: cashBalance - surplusThis,
+                        takeHomePay: combinedTakeHome,
+                        combinedDrawdown: combinedDrawdown,
+                        otherIncome: netOtherIncome,
+                        totalIncome: totalIncome,
+                        expenses: expThisYear,
+                        surplus: surplusThis,
+                        cbCash: cashBalance,
+                        combinedAccOB: combinedAccOB,
+                        combinedPensOB: combinedPensOB,
+                        combinedGrowth: combinedGrowth,
+                        combinedTax: combinedTax,
+                        combinedFees: combinedFees,
+                        combinedTransfer: combinedTransfer,
+                        combinedDrawdown: combinedDrawdown,
+                        combinedAccCB: combinedAccCB,
+                        combinedPensCB: combinedPensCB
+                    });
+
+                    const totalSuper = p1Acc + p1Pens + p2Acc + p2Pens;
+                    if (totalSuper < 0.01 && cashBalance < 0.01) {
+                        yearsLastCount = year + 1;
+                        assetsExhausted = true;
+                        break;
+                    }
+
+                    yearsLastCount = year + 1;
+                    p1Age++;
+                    p2Age++;
+                }
+
+                if (!assetsExhausted && yearsLastCount >= projYrs) {
+                    yearsLastCount = projYrs + 0.5;
+                }
+
+                const totalSuperFinal = p1Acc + p1Pens + p2Acc + p2Pens;
+                finalSuper.textContent = fmt(totalSuperFinal);
+                finalOther.textContent = fmt(cashBalance);
+                retIncome.textContent = fmt(firstYearIncome);
+                retExpenses.textContent = fmt(firstYearExpense);
+                const gap = firstYearIncome - firstYearExpense;
+                surplus.textContent = fmt(gap);
+                surplus.className = 'value' + (gap >= 0 ? ' positive' : ' danger');
+
+                let yearsDisplay = '';
+                if (yearsLastCount >= projYrs && !assetsExhausted) {
+                    yearsDisplay = `> ${projYrs} yrs`;
+                } else if (assetsExhausted) {
+                    yearsDisplay = `${Math.floor(yearsLastCount)} yrs`;
+                } else {
+                    yearsDisplay = `${Math.floor(yearsLastCount)} yrs`;
+                }
+                yearsLast.textContent = yearsDisplay;
+                yearsLast.className = 'value' + (!assetsExhausted ? ' positive' : ' danger');
+
+                const stratLabel = strat_60_74.options[strat_60_74.selectedIndex]?.text || 'Balanced';
+                footnote.innerHTML = `
+                    <strong>📌 Projection summary:</strong> Strategy: ${stratLabel} (age-band) · Super fee ${fee}% · Inflation ${inf}% ·
+                    Accumulation tax 15% · ${transferEnabled ? 'Transfer to Pension enabled' : 'Transfer disabled'} ·
+                    ${!assetsExhausted ? '✅ Funds remain after projection period.' : '⚠️ Funds exhausted after ' + Math.floor(yearsLastCount) + ' years.'}
+                    ${gap >= 0 ? ' Income covers expenses.' : ' Shortfall may require adjustments.'}
+                `;
+
+                renderLedgers();
+            }
+
+            // ============================================================
+            // EXCEL EXPORT - 7 TABS
+            // ============================================================
+            function downloadExcel() {
+                if (ledger1Data.length === 0 && ledger2Data.length === 0 && ledger3Data.length === 0) {
+                    alert('Please run the projection first (click "Run Projection") before downloading.');
+                    return;
+                }
+
+                const wb = XLSX.utils.book_new();
+
+                // --- Helper: Add sheet from 2D array ---
+                function addSheet(data, name) {
+                    const ws = XLSX.utils.aoa_to_sheet(data);
+                    // Auto column widths
+                    const colWidths = [];
+                    data.forEach(row => {
+                        row.forEach((cell, idx) => {
+                            const len = String(cell).length;
+                            if (!colWidths[idx] || len > colWidths[idx]) colWidths[idx] = len;
+                        });
+                    });
+                    ws['!cols'] = colWidths.map(w => ({ wch: Math.min(Math.max(w + 2, 10), 30) }));
+                    XLSX.utils.book_append_sheet(wb, ws, name);
+                }
+
+                // --- TAB 1: INPUTS ---
+                const inputsData = [
+                    ['INPUT PARAMETERS', ''],
+                    ['', ''],
+                    ['Category', 'Value'],
+                    ['--- PERSONAL DETAILS ---', ''],
+                    ['Your Age', age1.value],
+                    ['Partner Age', age2.value],
+                    ['Your Super Balance', super1.value],
+                    ['Partner Super Balance', super2.value],
+                    ['Your Annual Salary', salary1.value],
+                    ['Partner Annual Salary', salary2.value],
+                    ['SG Rate (%)', sgRate.value],
+                    ['Total Salary Sacrifice ($/year)', sacrifice.value],
+                    ['Tax Rate on Take-Home Pay (%)', taxRate.value],
+                    ['Salary Stop Year', salaryStopYear.value || 'Ongoing'],
+                    ['Rental Income Stop Year', rentalStopYear.value || 'Ongoing'],
+                    ['', ''],
+                    ['--- STRATEGY SETTINGS ---', ''],
+                    ['Strategy 60-74', strat_60_74.options[strat_60_74.selectedIndex].text],
+                    ['Strategy 75-79', strat_75_79.options[strat_75_79.selectedIndex].text],
+                    ['Strategy 80-84', strat_80_84.options[strat_80_84.selectedIndex].text],
+                    ['Strategy 85+', strat_85_plus.options[strat_85_plus.selectedIndex].text],
+                    ['Custom Return for Other Investments (%)', customReturn.value],
+                    ['', ''],
+                    ['--- FEES & INFLATION ---', ''],
+                    ['Super Admin Fee (% of balance/year)', feePct.value],
+                    ['Inflation (% p.a.)', inflation.value],
+                    ['', ''],
+                    ['--- EXPENSES & INCOME ---', ''],
+                    ['Annual Living Expenses', annualExpenses.value],
+                    ['Opening Cash Balance', openingCash.value],
+                    ['Rental Income (annual)', rentalIncome.value],
+                    ['Rental Expenses (annual)', rentalExpenses.value],
+                    ['Other Investment Income', otherIncome.value],
+                    ['Other Investment Expenses', otherExpenses.value],
+                    ['', ''],
+                    ['--- RETIREMENT SETTINGS ---', ''],
+                    ['Desired Retirement Age', retireAge.value],
+                    ['Max Projection Years', projectionYears.value],
+                    ['Transfer to Pension', transferToPension.checked ? 'Yes' : 'No'],
+                ];
+                addSheet(inputsData, 'Inputs');
+
+                // --- TAB 2: ATO DRAWDOWN TABLE ---
+                const drawdownData = [
+                    ['ATO Minimum Drawdown Rates'],
+                    [''],
+                    ['Age Range', 'Drawdown Rate'],
+                    ['Under 60', '0%'],
+                    ['60-64', '4%'],
+                    ['65-74', '5%'],
+                    ['75-79', '6%'],
+                    ['80-84', '7%'],
+                    ['85-89', '9%'],
+                    ['90-94', '11%'],
+                    ['95+', '14%'],
+                    ['', ''],
+                    ['Note: Drawdown applies only to Pension phase'],
+                    ['Accumulation phase has 0% drawdown'],
+                ];
+                addSheet(drawdownData, 'ATO Drawdown');
+
+                // --- TAB 3: SUPER STRATEGY ---
+                const strategyData = [
+                    ['Super Investment Strategy by Age Band'],
+                    [''],
+                    ['Age Band', 'Strategy', 'Return'],
+                    ['Under 60', 'Growth (fixed)', '7.7%'],
+                    ['60-74', strat_60_74.options[strat_60_74.selectedIndex].text, 
+                        strat_60_74.value === 'growth' ? '7.7%' : strat_60_74.value === 'balanced' ? '5.3%' : '3.8%'
+                    ],
+                    ['75-79', strat_75_79.options[strat_75_79.selectedIndex].text,
+                        strat_75_79.value === 'growth' ? '7.7%' : strat_75_79.value === 'balanced' ? '5.3%' : '3.8%'
+                    ],
+                    ['80-84', strat_80_84.options[strat_80_84.selectedIndex].text,
+                        strat_80_84.value === 'growth' ? '7.7%' : strat_80_84.value === 'balanced' ? '5.3%' : '3.8%'
+                    ],
+                    ['85+', strat_85_plus.options[strat_85_plus.selectedIndex].text,
+                        strat_85_plus.value === 'growth' ? '7.7%' : strat_85_plus.value === 'balanced' ? '5.3%' : '3.8%'
+                    ],
+                    ['', '', ''],
+                    ['Other Investments Return', 'Custom', customReturn.value + '%'],
+                    ['', '', ''],
+                    ['Accumulation Tax Rate', '15%'],
+                    ['Pension Tax Rate', '0%'],
+                ];
+                addSheet(strategyData, 'Super Strategy');
+
+                // --- TAB 4: LEDGER 1 (Partner 1) ---
+                const l1Data = [
+                    ['LEDGER 1: Partner 1'],
+                    ['Year', 'Age', 'OB Acc', 'OB Pens', 'Salary+SG', 'Take-Home Pay', 'Growth', 'Tax', 'Fees', 'Transfer', 'Drawdown', 'CB Acc', 'CB Pens']
+                ];
+                ledger1Data.forEach(row => {
+                    l1Data.push([
+                        row.year, row.age,
+                        rawNumber(row.obAcc), rawNumber(row.obPens),
+                        rawNumber(row.salarySG), rawNumber(row.takeHome),
+                        rawNumber(row.growth), rawNumber(row.tax),
+                        rawNumber(row.fees), rawNumber(row.transfer),
+                        rawNumber(row.drawdown),
+                        rawNumber(row.cbAcc), rawNumber(row.cbPens)
+                    ]);
+                });
+                addSheet(l1Data, 'Ledger 1');
+
+                // --- TAB 5: LEDGER 2 (Partner 2) ---
+                const l2Data = [
+                    ['LEDGER 2: Partner 2'],
+                    ['Year', 'Age', 'OB Acc', 'OB Pens', 'Salary+SG', 'Take-Home Pay', 'Growth', 'Tax', 'Fees', 'Transfer', 'Drawdown', 'CB Acc', 'CB Pens']
+                ];
+                ledger2Data.forEach(row => {
+                    l2Data.push([
+                        row.year, row.age,
+                        rawNumber(row.obAcc), rawNumber(row.obPens),
+                        rawNumber(row.salarySG), rawNumber(row.takeHome),
+                        rawNumber(row.growth), rawNumber(row.tax),
+                        rawNumber(row.fees), rawNumber(row.transfer),
+                        rawNumber(row.drawdown),
+                        rawNumber(row.cbAcc), rawNumber(row.cbPens)
+                    ]);
+                });
+                addSheet(l2Data, 'Ledger 2');
+
+                // --- TAB 6: LEDGER 3 (Combined) ---
+                const l3Data = [
+                    ['LEDGER 3: Combined Cashflow'],
+                    ['Year', 'OB Cash', 'Take-Home Pay', 'Combined Drawdown', 'Other Income', 'Total Income', 'Expenses', 'Surplus', 'CB Cash',
+                        'Combined Acc OB', 'Combined Pens OB', 'Combined Growth', 'Combined Tax', 'Combined Fees',
+                        'Combined Transfer', 'Combined Drawdown', 'Combined Acc CB', 'Combined Pens CB'
+                    ]
+                ];
+                ledger3Data.forEach(row => {
+                    l3Data.push([
+                        row.year,
+                        rawNumber(row.obCash),
+                        rawNumber(row.takeHomePay),
+                        rawNumber(row.combinedDrawdown),
+                        rawNumber(row.otherIncome),
+                        rawNumber(row.totalIncome),
+                        rawNumber(row.expenses),
+                        rawNumber(row.surplus),
+                        rawNumber(row.cbCash),
+                        rawNumber(row.combinedAccOB),
+                        rawNumber(row.combinedPensOB),
+                        rawNumber(row.combinedGrowth),
+                        rawNumber(row.combinedTax),
+                        rawNumber(row.combinedFees),
+                        rawNumber(row.combinedTransfer),
+                        rawNumber(row.combinedDrawdown),
+                        rawNumber(row.combinedAccCB),
+                        rawNumber(row.combinedPensCB)
+                    ]);
+                });
+                addSheet(l3Data, 'Ledger 3');
+
+                // --- TAB 7: SUMMARY ---
+                const summaryData = [
+                    ['SUMMARY RESULTS'],
+                    [''],
+                    ['Metric', 'Value'],
+                    ['Total Super (Accumulation + Pension)', finalSuper.textContent],
+                    ['Total Other Assets (Cash etc.)', finalOther.textContent],
+                    ['Annual Retirement Income (Year 1)', retIncome.textContent],
+                    ['Annual Expenses (Year 1)', retExpenses.textContent],
+                    ['Surplus / Shortfall', surplus.textContent],
+                    ['Funds Last', yearsLast.textContent],
+                    ['', ''],
+                    ['Projection Notes:', ''],
+                    ['Strategy applied by age band as per Super Strategy tab'],
+                    ['Drawdown rates applied based on age (ATO rates)'],
+                    ['Accumulation earnings taxed at 15%'],
+                    ['Pension earnings tax-free'],
+                    ['Fees deducted from super balances annually'],
+                    ['Inflation applied to expenses and other income'],
+                    ['Salary sacrifice reduces take-home pay but not SG'],
+                    ['SG calculated on original salary before sacrifice'],
+                ];
+                addSheet(summaryData, 'Summary');
+
+                // --- Save workbook ---
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([wbout], { type: 'application/octet-stream' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'Retirement_Planner_Complete.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+
+            function resetDefaults() {
+                age1.value = DEFAULTS.age1;
+                age2.value = DEFAULTS.age2;
+                super1.value = DEFAULTS.super1;
+                super2.value = DEFAULTS.super2;
+                salary1.value = DEFAULTS.salary1;
+                salary2.value = DEFAULTS.salary2;
+                sgRate.value = DEFAULTS.sgRate;
+                sacrifice.value = DEFAULTS.sacrifice;
+                taxRate.value = DEFAULTS.taxRate;
+                strat_60_74.value = DEFAULTS.strat_60_74;
+                strat_75_79.value = DEFAULTS.strat_75_79;
+                strat_80_84.value = DEFAULTS.strat_80_84;
+                strat_85_plus.value = DEFAULTS.strat_85_plus;
+                customReturn.value = DEFAULTS.customReturn;
+                feePct.value = DEFAULTS.feePct;
+                inflation.value = DEFAULTS.inflation;
+                annualExpenses.value = DEFAULTS.annualExpenses;
+                openingCash.value = DEFAULTS.openingCash;
+                rentalIncome.value = DEFAULTS.rentalIncome;
+                rentalExpenses.value = DEFAULTS.rentalExpenses;
+                otherIncome.value = DEFAULTS.otherIncome;
+                otherExpenses.value = DEFAULTS.otherExpenses;
+                retireAge.value = DEFAULTS.retireAge;
+                projectionYears.value = DEFAULTS.projectionYears;
+                salaryStopYear.value = DEFAULTS.salaryStopYear;
+                rentalStopYear.value = DEFAULTS.rentalStopYear;
+                transferToPension.checked = DEFAULTS.transferToPension;
+                runProjection();
+            }
+
+            document.getElementById('calcBtn').addEventListener('click', runProjection);
+            document.getElementById('resetBtn').addEventListener('click', resetDefaults);
+            document.getElementById('excelBtn').addEventListener('click', downloadExcel);
+
+            const inputs = [age1, age2, super1, super2, salary1, salary2, sgRate, sacrifice, taxRate,
+                strat_60_74, strat_75_79, strat_80_84, strat_85_plus, customReturn, feePct,
+                inflation, annualExpenses, openingCash, rentalIncome, rentalExpenses,
+                otherIncome, otherExpenses, retireAge, projectionYears, salaryStopYear, rentalStopYear,
+                transferToPension
+            ];
+            inputs.forEach(inp => {
+                inp.addEventListener('change', runProjection);
+                inp.addEventListener('input', () => {
+                    clearTimeout(window._calcTimer);
+                    window._calcTimer = setTimeout(runProjection, 400);
+                });
+            });
+
+            runProjection();
+        })();
+    </script>
+</body>
+</html>
